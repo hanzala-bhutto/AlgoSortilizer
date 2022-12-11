@@ -1,3 +1,0 @@
-pygame
-easygui
-pygame_gui
