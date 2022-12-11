@@ -1,1 +1,1 @@
-list
+            print(color)

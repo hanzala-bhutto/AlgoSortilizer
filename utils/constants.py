@@ -1,6 +1,6 @@
 SORTING_ALGOS = ["Insertion sort","Bubble sort","Merge Sort","Heap Sort",
                 "Quick sort","Radix Sort","Bucket Sort","Counting Sort",
-                "Quinsert Sort", "8.1.4 Sort"]
+                "Quinsert Sort", "Range Query"]
 
 FPSOPTIONS = ["fast","medium","slow"]
 

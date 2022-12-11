@@ -53,7 +53,12 @@ infoAlgo = {
         "Space Complexity": "O(N)",
         "Stable": "No"
     },
-
+    "Range Query": {
+        "Algorithm" : "Range Query",
+        "Time Complexity": "O(N+K)",
+        "Space Complexity": "O(N)",
+        "Stable": "-"
+    },
 }
 
 def infoAlgoMsg(sortingAlgoName):

@@ -7,6 +7,7 @@ from algorithms.radixSort import radixSort
 from algorithms.bucketSort import bucketSort
 from algorithms.countSort import countSort
 from algorithms.quinsertSort import quinsertSort
+from algorithms.rangeQuery import rangeQuery
 
 from utils.checkInteger import checkInteger
 from utils.info import infoAlgoMsg
@@ -97,6 +98,31 @@ def draw(draw_info, algoName, ascending,optionsAlgo,optionsFPS,manager,infoButto
     manager.update(time_delta)
     manager.draw_ui(draw_info.window)
     pygame.display.update()
+
+def drawRange(draw_info, color_positions={},clearBG=False):
+    lst = draw_info.lst
+    
+    if clearBG:
+        clearRect = (draw_info.SIDE_PADDING//2, 
+                    draw_info.TOP_PADDING, 
+                    draw_info.width - draw_info.SIDE_PADDING,
+                    draw_info.height - draw_info.TOP_PADDING)
+
+        pygame.draw.rect(draw_info.window,draw_info.BACKGROUND_COLOR, clearRect)
+
+    for i, val in enumerate(lst):
+        x = draw_info.start_x + i * draw_info.block_width
+        y = draw_info.height - (val-draw_info.min_val) * draw_info.block_height
+
+        color = draw_info.GREY_GRADIENTS[i % 3] # different color for adjacent blocks
+        
+        if i in color_positions:
+            color = color_positions[i]
+
+        pygame.draw.rect(draw_info.window, color, (x,y,draw_info.block_width,draw_info.height))
+
+    if clearBG:
+        pygame.display.update()    
 
 # draw the numbers in the shape of rectangle bars
 def draw_list(draw_info, color_positions={}, clearBG=False):
@@ -300,8 +326,8 @@ def main():
                 sortingAlgorithm = quinsertSort  
 
             if selected_option == 9:
-                sortingAlgoName = "Quinsert Sort"
-                sortingAlgorithm = quinsertSort  
+                sortingAlgoName = "Range Query"
+                sortingAlgorithm = rangeQuery   
     
         # optionFPS event
         # choosing different optionsFPS and operation based on their returned index
@@ -392,8 +418,11 @@ def main():
                     sorting = True
                     start = time.time()
                     start_time = pygame.time.get_ticks()
-                    sortingAlgoGenerator = sortingAlgorithm(draw_info,draw_list,ascending)
-
+                    if sortingAlgoName == "Range Query":
+                        sortingAlgoGenerator = sortingAlgorithm(draw_info,draw_list,drawRange,ascending)
+                    else:
+                        sortingAlgoGenerator = sortingAlgorithm(draw_info,draw_list,ascending)                        
+                    
             elif event.key == pygame.K_a and not sorting:
                 ascending = True
 
@@ -445,6 +474,11 @@ def main():
                 sortingAlgoName = "Quinsert Sort"
                 sortingAlgorithm = quinsertSort
                 optionsAlgo.selected = 8
+
+            elif (event.key == pygame.K_0) and not sorting:
+                sortingAlgoName = "Range Query"
+                sortingAlgorithm = rangeQuery   
+                optionsAlgo.selected = 9
 
     pygame.quit()
 
