@@ -11,11 +11,12 @@ from algorithms.quinsertSort import quinsertSort
 from utils.checkInteger import checkInteger
 from utils.info import infoAlgoMsg
 from utils.constants import *
+from utils.plot import matplotWindow
 
 from buttons.Button import Button
 from buttons.optionBox import OptionBox
 
-# import time
+import time
 import random
 import math
 import numpy as np
@@ -75,13 +76,13 @@ class DrawInformation:
         return self.width
 
 # draw function to render everything on screen
-def draw(draw_info, algoName, ascending,optionsAlgo,optionsFPS,manager,infoButton, sorting,sortedd,time_delta):
+def draw(draw_info, algoName, ascending,optionsAlgo,optionsFPS,manager,infoButton,plotButton, sorting,sortedd,time_delta):
     draw_info.window.fill(draw_info.BACKGROUND_COLOR)
 
     title = draw_info.LARGE_FONT.render(f"{algoName} - {'Ascending' if ascending else 'Descending'}", 1, draw_info.GREEN)
     draw_info.window.blit(title, (draw_info.width/2 - title.get_width()/2 ,5))
 
-    controls = draw_info.REG_FONT.render("G - Generate New Array | Space - Sort | A - Ascend | D - Descend", 1, draw_info.BLACK)
+    controls = draw_info.REG_FONT.render("G - Generate New Array | R - Reset Array | Space - Sort | A - Ascend | D - Descend", 1, draw_info.BLACK)
     draw_info.window.blit(controls, (draw_info.width/2 - controls.get_width()/2 ,40))
 
     sort = draw_info.REG_FONT.render("1 - Insertion | 2 - Bubble | 3 - Merge | 4 - Heap | 5 - Quick | 6 - Radix | 7 - Bucket | 8 - Count | 9 - Quinsert", 1, draw_info.BLACK)
@@ -91,6 +92,7 @@ def draw(draw_info, algoName, ascending,optionsAlgo,optionsFPS,manager,infoButto
     optionsFPS.draw(draw_info.window)
     optionsAlgo.draw(draw_info.window)
     infoButton.draw(draw_info.window)
+    plotButton.draw(draw_info.window)
     draw_list(draw_info) 
     manager.update(time_delta)
     manager.draw_ui(draw_info.window)
@@ -130,7 +132,7 @@ def timer_draw(draw_info,sorting,sortedd=False):
 
         counting_time = pygame.time.get_ticks() - start_time
 
-        # change milliseconds into minutes, seconds, milliseconds
+        # change milliseconds into seconds
         counting_seconds = str( (counting_time%60000)/1000 ).zfill(2)
 
         counting_string = "%s ms" % (counting_seconds)
@@ -191,13 +193,15 @@ def generage_list_file(location):
     global retainList
     retainList = input.copy()
     return input
-    
+
 # main code
 def main():
     global start,start_time,end,FPS
         
     run = True
     clock = pygame.time.Clock()
+
+    data = {}
 
     n=30
     min_val = 1
@@ -226,7 +230,9 @@ def main():
     file_selection_button = UIButton(relative_rect=Rect(0, 100, 130, 33),
                                  manager=manager, text='Select File')
     
-    infoButton = Button((150, 150, 150),0,10,100,30,pygame.font.SysFont('comicsans', 20),text="Info")
+    infoButton = Button((150, 150, 150),0,15,100,30,pygame.font.SysFont('comicsans', 20),text="Info")
+
+    plotButton = Button((150, 150, 150),draw_info.width-100,100,100,30,pygame.font.SysFont('comicsans', 20),text="plot")
 
     sortedd = False
 
@@ -239,13 +245,16 @@ def main():
             try:
                 next(sortingAlgoGenerator)
             except StopIteration:
-                # end = time.time()
-                # print(str(round(end-start,3)))
+                end = time.time()
+                timeComplex = round(end-start,3)
                 sorting = False
                 sortedd=True
+                data[sortingAlgoName] = timeComplex
+                msgbox(title="Sorted Successfully",msg=f"Original list: {retainList}\n\nSorted List: {lst}\n\nTime Taken: {timeComplex}",ok_button="OK")
+                
         else:
             # render objects to draw on screen
-            draw(draw_info,sortingAlgoName,ascending, optionsAlgo,optionsFPS,manager,infoButton,sorting,sortedd,time_delta)
+            draw(draw_info,sortingAlgoName,ascending, optionsAlgo,optionsFPS,manager,infoButton,plotButton,sorting,sortedd,time_delta)
         
         # get all events
         event_list = pygame.event.get()
@@ -299,11 +308,11 @@ def main():
         selected_optionFPS = optionsFPS.update(event_list)
         if selected_optionFPS >= 0 and not sorting:
             if selected_optionFPS == 0:
-                FPS = 10
+                FPS = 60
             if selected_optionFPS == 1:
-                FPS = 20
-            if selected_optionFPS == 2:
                 FPS = 30
+            if selected_optionFPS == 2:
+                FPS = 10
         
 
         for event in event_list:
@@ -318,11 +327,20 @@ def main():
                 if infoButton.isOver(pos):
                     msgbox(msg=infoAlgoMsg(sortingAlgoName),title="Information Panel", ok_button="OK")
 
+                if plotButton.isOver(pos):
+                    matplotWindow(data)
+                    # pass
+
             if event.type == pygame.MOUSEMOTION:
                 if (infoButton.isOver(pos)):
                     infoButton.color = (100, 200, 255)
                 else:                    
                     infoButton.color = (draw_info.GREY)
+                    
+                if (plotButton.isOver(pos)):
+                    plotButton.color = (100, 200, 255)
+                else:                    
+                    plotButton.color = (draw_info.GREY)
 
             # file input event
             if event.type == pygame.USEREVENT:
@@ -372,7 +390,7 @@ def main():
                     msgbox("Count Or Radix Sort doesnot work on float numbers inputted",title="Float Validation", ok_button="Close")
                 else:
                     sorting = True
-                    # start = time.time()
+                    start = time.time()
                     start_time = pygame.time.get_ticks()
                     sortingAlgoGenerator = sortingAlgorithm(draw_info,draw_list,ascending)
 
