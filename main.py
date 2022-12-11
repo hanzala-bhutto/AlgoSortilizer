@@ -8,6 +8,7 @@ from algorithms.bucketSort import bucketSort
 from algorithms.countSort import countSort
 from algorithms.quinsertSort import quinsertSort
 
+from utils.checkInteger import checkInteger
 from utils.info import infoAlgoMsg
 
 from buttons.Button import Button
@@ -168,15 +169,6 @@ def generage_list_file(location):
     global retainList
     retainList = input.copy()
     return input
-
-def checkInteger(lst):
-
-    for number in lst:
-        if type(number) is not int:
-            return False
-        
-    return True
-
     
 # main code
 def main():
