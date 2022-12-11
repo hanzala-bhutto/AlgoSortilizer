@@ -1,6 +1,6 @@
 def bubbleSort(draw_info, draw_list, ascending=True):
     lst = draw_info.lst
-
+    
     for i in range(len(lst) - 1):
         for j in range(len(lst) - 1 - i):
             num1 = lst[j]

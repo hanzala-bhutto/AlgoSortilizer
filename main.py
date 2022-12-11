@@ -10,9 +10,12 @@ from algorithms.quinsertSort import quinsertSort
 
 from utils.checkInteger import checkInteger
 from utils.info import infoAlgoMsg
+from utils.constants import *
 
 from buttons.Button import Button
 from buttons.optionBox import OptionBox
+
+# import time
 import random
 import math
 import numpy as np
@@ -25,13 +28,6 @@ from pygame_gui.elements.ui_button import UIButton
 from pygame.rect import Rect
 
 pygame.init()
-
-SORTING_ALGOS = ["Insertion sort","Bubble sort","Merge Sort","Heap Sort",
-                "Quick sort","Radix Sort","Bucket Sort","Counting Sort",
-                "Quinsert Sort", "8.1.4 Sort"]
-WIDTH, HEIGHT = 1100,680
-
-retainList = []
 
 # class that will have window screen 
 class DrawInformation:
@@ -79,7 +75,7 @@ class DrawInformation:
         return self.width
 
 # draw function to render everything on screen
-def draw(draw_info, algoName, ascending,options,manager,infoButton, time_delta):
+def draw(draw_info, algoName, ascending,optionsAlgo,optionsFPS,manager,infoButton, sorting,sortedd,time_delta):
     draw_info.window.fill(draw_info.BACKGROUND_COLOR)
 
     title = draw_info.LARGE_FONT.render(f"{algoName} - {'Ascending' if ascending else 'Descending'}", 1, draw_info.GREEN)
@@ -88,10 +84,12 @@ def draw(draw_info, algoName, ascending,options,manager,infoButton, time_delta):
     controls = draw_info.REG_FONT.render("G - Generate New Array | Space - Sort | A - Ascend | D - Descend", 1, draw_info.BLACK)
     draw_info.window.blit(controls, (draw_info.width/2 - controls.get_width()/2 ,40))
 
-    sorting = draw_info.REG_FONT.render("1 - Insertion | 2 - Bubble | 3 - Merge | 4 - Heap | 5 - Quick | 6 - Radix | 7 - Bucket | 8 - Count | 9 - Quinsert", 1, draw_info.BLACK)
-    draw_info.window.blit(sorting, (draw_info.width/2 - sorting.get_width()/2 ,65))
+    sort = draw_info.REG_FONT.render("1 - Insertion | 2 - Bubble | 3 - Merge | 4 - Heap | 5 - Quick | 6 - Radix | 7 - Bucket | 8 - Count | 9 - Quinsert", 1, draw_info.BLACK)
+    draw_info.window.blit(sort, (draw_info.width/2 - sort.get_width()/2 ,65))
 
-    options.draw(draw_info.window)
+    timer_draw(draw_info,sorting,sortedd)
+    optionsFPS.draw(draw_info.window)
+    optionsAlgo.draw(draw_info.window)
     infoButton.draw(draw_info.window)
     draw_list(draw_info) 
     manager.update(time_delta)
@@ -124,6 +122,30 @@ def draw_list(draw_info, color_positions={}, clearBG=False):
     if clearBG:
         pygame.display.update()
 
+# timer count down to calculate the time comlexity
+def timer_draw(draw_info,sorting,sortedd=False):
+    if sorting:
+        global counting_string
+        draw_info.window.fill(pygame.Color("white"), (draw_info.width-180, 15, 200, 30))
+
+        counting_time = pygame.time.get_ticks() - start_time
+
+        # change milliseconds into minutes, seconds, milliseconds
+        counting_seconds = str( (counting_time%60000)/1000 ).zfill(2)
+
+        counting_string = "%s ms" % (counting_seconds)
+
+        counting_text = draw_info.REG_FONT.render(str(counting_string), 1, (draw_info.GREEN),None)
+        draw_info.window.blit(counting_text,(draw_info.width-150,15))
+
+    if sortedd:
+        counting_text = draw_info.REG_FONT.render(str(counting_string), 1, (draw_info.GREEN),None)
+        draw_info.window.blit(counting_text,(draw_info.width-150,15))
+    
+    if not sortedd and not sorting:
+        counting_string= "0 ms"
+        counting_text = draw_info.REG_FONT.render(str(counting_string), 1, (draw_info.GREEN),None)
+        draw_info.window.blit(counting_text,(draw_info.width-150,15))
 
 # random number list generator
 def generate_starting_list(n, min_val, max_val):
@@ -172,10 +194,12 @@ def generage_list_file(location):
     
 # main code
 def main():
+    global start,start_time,end,FPS
+        
     run = True
     clock = pygame.time.Clock()
 
-    n=50
+    n=30
     min_val = 1
     max_val = 100
     lst = generate_starting_list(n,min_val,max_val)
@@ -189,37 +213,46 @@ def main():
 
     draw_info = DrawInformation(WIDTH,HEIGHT,lst)
 
-    options = OptionBox(
+    optionsAlgo = OptionBox(
     draw_info.width/2-200, 100, 200, 30, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
     SORTING_ALGOS)
 
+    optionsFPS = OptionBox(
+    draw_info.width//2+5, 100, 100, 30, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
+    FPSOPTIONS)
+
     manager = pygame_gui.UIManager((800, 600))
 
-    file_selection_button = UIButton(relative_rect=Rect(draw_info.width/2, 100, 200, 30),
+    file_selection_button = UIButton(relative_rect=Rect(0, 100, 130, 33),
                                  manager=manager, text='Select File')
     
-    infoButton = Button((150, 150, 150),draw_info.width-100,10,100,30,pygame.font.SysFont('comicsans', 20),text="Info")
+    infoButton = Button((150, 150, 150),0,10,100,30,pygame.font.SysFont('comicsans', 20),text="Info")
+
+    sortedd = False
 
     # main loop to run pygame
     while run:
-        time_delta = clock.tick(30) / 1000.0
-
+        time_delta = clock.tick(FPS) / 1000.0
+        timer_draw(draw_info,sorting,sortedd)
         # check if sorting to load sequence of generator objects
         if sorting:
             try:
                 next(sortingAlgoGenerator)
             except StopIteration:
+                # end = time.time()
+                # print(str(round(end-start,3)))
                 sorting = False
+                sortedd=True
         else:
             # render objects to draw on screen
-            draw(draw_info,sortingAlgoName,ascending, options,manager,infoButton,time_delta)
+            draw(draw_info,sortingAlgoName,ascending, optionsAlgo,optionsFPS,manager,infoButton,sorting,sortedd,time_delta)
         
         # get all events
         event_list = pygame.event.get()
 
-        # optionBox event
-        # choosing different options and operation based on their returned index
-        selected_option = options.update(event_list)
+        # optionAlgo event
+        # choosing different optionsAlgo and operation based on their returned index
+        selected_option = optionsAlgo.update(event_list)
         if selected_option >= 0 and not sorting:
             if selected_option == 0:
                 sortingAlgoName = "Insertion Sort"
@@ -261,6 +294,18 @@ def main():
                 sortingAlgoName = "Quinsert Sort"
                 sortingAlgorithm = quinsertSort  
     
+        # optionFPS event
+        # choosing different optionsFPS and operation based on their returned index
+        selected_optionFPS = optionsFPS.update(event_list)
+        if selected_optionFPS >= 0 and not sorting:
+            if selected_optionFPS == 0:
+                FPS = 10
+            if selected_optionFPS == 1:
+                FPS = 20
+            if selected_optionFPS == 2:
+                FPS = 30
+        
+
         for event in event_list:
             pos = pygame.mouse.get_pos()
             
@@ -282,6 +327,7 @@ def main():
             # file input event
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                        
                     if event.ui_element == file_selection_button:
                         file_selection = UIFileDialog(rect=Rect(100, 0, 600, 400), manager=manager, allow_picking_directories=True)
 
@@ -290,6 +336,7 @@ def main():
                         if lst:
                             draw_info.set_list(lst)
                             sorting=False
+                            sortedd=False
                             msgbox(msg=f"Input loaded successfully : {lst}", title="Successfully Loaded", ok_button="Ok")
 
             # handle file input change
@@ -303,6 +350,7 @@ def main():
                 lst = generate_starting_list(n,min_val,max_val)
                 draw_info.set_list(lst)
                 sorting=False
+                sortedd=False
                 msgbox(msg=f"random numbers generated successfully: {lst}",title="Successfully Loaded", ok_button="Ok")
 
 
@@ -310,6 +358,7 @@ def main():
                 lst = retainList.copy()
                 draw_info.set_list(lst)
                 sorting=False
+                sortedd=False
                 msgbox(msg=f"original numbers generated successfully: {lst}",title="Successfully Loaded", ok_button="Ok")
 
 
@@ -323,6 +372,8 @@ def main():
                     msgbox("Count Or Radix Sort doesnot work on float numbers inputted",title="Float Validation", ok_button="Close")
                 else:
                     sorting = True
+                    # start = time.time()
+                    start_time = pygame.time.get_ticks()
                     sortingAlgoGenerator = sortingAlgorithm(draw_info,draw_list,ascending)
 
             elif event.key == pygame.K_a and not sorting:
@@ -334,48 +385,48 @@ def main():
             elif (event.key == pygame.K_1) and not sorting:
                 sortingAlgoName = "Insertion Sort"
                 sortingAlgorithm = insertionSort
-                options.selected = 0
+                optionsAlgo.selected = 0
 
             elif (event.key == pygame.K_2) and not sorting:
                 sortingAlgoName = "Bubble Sort"
                 sortingAlgorithm = bubbleSort
-                options.selected = 1
+                optionsAlgo.selected = 1
 
             elif (event.key == pygame.K_3) and not sorting:
                 sortingAlgoName = "Merge Sort"
                 sortingAlgorithm = mergeSort
-                options.selected = 2
+                optionsAlgo.selected = 2
 
             elif (event.key == pygame.K_4) and not sorting:
                 sortingAlgoName = "Heap Sort"
                 sortingAlgorithm = heapSort
-                options.selected = 3
+                optionsAlgo.selected = 3
 
             elif (event.key == pygame.K_5) and not sorting:
                 sortingAlgoName = "Quick Sort"
                 sortingAlgorithm = quickSort
-                options.selected = 4
+                optionsAlgo.selected = 4
 
             elif (event.key == pygame.K_6) and not sorting:
                 sortingAlgoName = "Radix Sort"
                 sortingAlgorithm = radixSort
-                options.selected = 5
+                optionsAlgo.selected = 5
 
             elif (event.key == pygame.K_7) and not sorting:
                 sortingAlgoName = "Bucket Sort"
                 sortingAlgorithm = bucketSort
-                options.selected = 6
+                optionsAlgo.selected = 6
 
             elif (event.key == pygame.K_8) and not sorting:
                 sortingAlgoName = "Count Sort"
                 sortingAlgorithm = countSort
-                options.selected = 7
+                optionsAlgo.selected = 7
 
 
             elif (event.key == pygame.K_9) and not sorting:
                 sortingAlgoName = "Quinsert Sort"
                 sortingAlgorithm = quinsertSort
-                options.selected = 8
+                optionsAlgo.selected = 8
 
     pygame.quit()
 
