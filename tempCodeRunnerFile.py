@@ -1,0 +1,1 @@
+        color = draw_info.GREY_GRADIENTS[i % 3] # different color for adjacent blocks
