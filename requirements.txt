@@ -1,2 +1,6 @@
+math
+numpy
+random
 pygame
+pygame_gui
 easygui

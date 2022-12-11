@@ -8,7 +8,7 @@ from algorithms.bucketSort import bucketSort
 from algorithms.countSort import countSort
 from algorithms.quinsertSort import quinsertSort
 
-from utils.info import infoAlgo
+from utils.info import infoAlgoMsg
 
 from buttons.Button import Button
 from buttons.optionBox import OptionBox
@@ -177,21 +177,6 @@ def checkInteger(lst):
         
     return True
 
-def infoAlgoMsg(sortingAlgoName):
-    
-    keys = list(infoAlgo[sortingAlgoName].keys())
-    
-    algoQ = keys[0]
-    algoA = infoAlgo[sortingAlgoName]["Algorithm"]
-    timeQ = keys[1]
-    timeA = infoAlgo[sortingAlgoName]["Time Complexity"]
-    spaceQ = keys[2]
-    spaceA = infoAlgo[sortingAlgoName]["Space Complexity"]
-    stableQ = keys[3]
-    stableA = infoAlgo[sortingAlgoName]["Stable"]
-    
-    return f"{algoQ} : {algoA}\n{timeQ} : {timeA}\n{spaceQ} : {spaceA}\n{stableQ} : {stableA}"
-
     
 # main code
 def main():
@@ -281,8 +266,8 @@ def main():
                 sortingAlgorithm = quinsertSort  
 
             if selected_option == 9:
-                sortingAlgoName = "8.1.4 Sort"
-                sortingAlgorithm = bubbleSort  
+                sortingAlgoName = "Quinsert Sort"
+                sortingAlgorithm = quinsertSort  
     
         for event in event_list:
             pos = pygame.mouse.get_pos()
@@ -329,11 +314,15 @@ def main():
                 msgbox(msg=f"random numbers generated successfully: {lst}",title="Successfully Loaded", ok_button="Ok")
 
 
-            if event.key == pygame.K_r:
+            elif event.key == pygame.K_r:
                 lst = retainList.copy()
                 draw_info.set_list(lst)
                 sorting=False
                 msgbox(msg=f"original numbers generated successfully: {lst}",title="Successfully Loaded", ok_button="Ok")
+
+
+            elif event.key == pygame.K_i:
+                msgbox(msg=infoAlgoMsg(sortingAlgoName),title="Information Panel", ok_button="OK")
 
 
             elif event.key == pygame.K_SPACE and sorting==False:

@@ -55,3 +55,18 @@ infoAlgo = {
     },
 
 }
+
+def infoAlgoMsg(sortingAlgoName):
+    
+    keys = list(infoAlgo[sortingAlgoName].keys())
+    
+    algoQ = keys[0]
+    algoA = infoAlgo[sortingAlgoName]["Algorithm"]
+    timeQ = keys[1]
+    timeA = infoAlgo[sortingAlgoName]["Time Complexity"]
+    spaceQ = keys[2]
+    spaceA = infoAlgo[sortingAlgoName]["Space Complexity"]
+    stableQ = keys[3]
+    stableA = infoAlgo[sortingAlgoName]["Stable"]
+    
+    return f"{algoQ} : {algoA}\n{timeQ} : {timeA}\n{spaceQ} : {spaceA}\n{stableQ} : {stableA}"
