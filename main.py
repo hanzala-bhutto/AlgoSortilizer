@@ -8,6 +8,9 @@ from algorithms.bucketSort import bucketSort
 from algorithms.countSort import countSort
 from algorithms.quinsertSort import quinsertSort
 
+from utils.info import infoAlgo
+
+from buttons.Button import Button
 from buttons.optionBox import OptionBox
 import random
 import math
@@ -35,6 +38,7 @@ class DrawInformation:
     WHITE = 255,255,255
     GREEN = 0,255,0
     RED = 255,0,0
+    GREY = 150,150,150
     BACKGROUND_COLOR = WHITE
 
     GREY_GRADIENTS = [
@@ -74,7 +78,7 @@ class DrawInformation:
         return self.width
 
 # draw function to render everything on screen
-def draw(draw_info, algoName, ascending,options,manager, time_delta):
+def draw(draw_info, algoName, ascending,options,manager,infoButton, time_delta):
     draw_info.window.fill(draw_info.BACKGROUND_COLOR)
 
     title = draw_info.LARGE_FONT.render(f"{algoName} - {'Ascending' if ascending else 'Descending'}", 1, draw_info.GREEN)
@@ -87,6 +91,7 @@ def draw(draw_info, algoName, ascending,options,manager, time_delta):
     draw_info.window.blit(sorting, (draw_info.width/2 - sorting.get_width()/2 ,65))
 
     options.draw(draw_info.window)
+    infoButton.draw(draw_info.window)
     draw_list(draw_info) 
     manager.update(time_delta)
     manager.draw_ui(draw_info.window)
@@ -172,10 +177,22 @@ def checkInteger(lst):
         
     return True
 
-def retainList():
-    global retainList
-    return retainList
+def infoAlgoMsg(sortingAlgoName):
+    
+    keys = list(infoAlgo[sortingAlgoName].keys())
+    
+    algoQ = keys[0]
+    algoA = infoAlgo[sortingAlgoName]["Algorithm"]
+    timeQ = keys[1]
+    timeA = infoAlgo[sortingAlgoName]["Time Complexity"]
+    spaceQ = keys[2]
+    spaceA = infoAlgo[sortingAlgoName]["Space Complexity"]
+    stableQ = keys[3]
+    stableA = infoAlgo[sortingAlgoName]["Stable"]
+    
+    return f"{algoQ} : {algoA}\n{timeQ} : {timeA}\n{spaceQ} : {spaceA}\n{stableQ} : {stableA}"
 
+    
 # main code
 def main():
     run = True
@@ -203,10 +220,12 @@ def main():
 
     file_selection_button = UIButton(relative_rect=Rect(draw_info.width/2, 100, 200, 30),
                                  manager=manager, text='Select File')
+    
+    infoButton = Button((150, 150, 150),draw_info.width-100,10,100,30,pygame.font.SysFont('comicsans', 20),text="Info")
 
     # main loop to run pygame
     while run:
-        time_delta = clock.tick(10) / 1000.0
+        time_delta = clock.tick(30) / 1000.0
 
         # check if sorting to load sequence of generator objects
         if sorting:
@@ -216,7 +235,7 @@ def main():
                 sorting = False
         else:
             # render objects to draw on screen
-            draw(draw_info,sortingAlgoName,ascending, options,manager,time_delta)
+            draw(draw_info,sortingAlgoName,ascending, options,manager,infoButton,time_delta)
         
         # get all events
         event_list = pygame.event.get()
@@ -254,7 +273,7 @@ def main():
                 sortingAlgorithm = bucketSort  
 
             if selected_option == 7:
-                sortingAlgoName = "Counting Sort"
+                sortingAlgoName = "Count Sort"
                 sortingAlgorithm = countSort  
 
             if selected_option == 8:
@@ -266,9 +285,22 @@ def main():
                 sortingAlgorithm = bubbleSort  
     
         for event in event_list:
+            pos = pygame.mouse.get_pos()
+            
             # exit event
             if event.type == pygame.QUIT:
                 run = False
+                
+            # info button event
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if infoButton.isOver(pos):
+                    msgbox(msg=infoAlgoMsg(sortingAlgoName),title="Information Panel", ok_button="OK")
+
+            if event.type == pygame.MOUSEMOTION:
+                if (infoButton.isOver(pos)):
+                    infoButton.color = (100, 200, 255)
+                else:                    
+                    infoButton.color = (draw_info.GREY)
 
             # file input event
             if event.type == pygame.USEREVENT:
@@ -277,7 +309,6 @@ def main():
                         file_selection = UIFileDialog(rect=Rect(100, 0, 600, 400), manager=manager, allow_picking_directories=True)
 
                     if event.ui_element == file_selection.ok_button:
-                        # print(file_selection.current_file_path)
                         lst = generage_list_file(file_selection.current_file_path)
                         if lst:
                             draw_info.set_list(lst)
@@ -308,7 +339,6 @@ def main():
             elif event.key == pygame.K_SPACE and sorting==False:
                 isIntLst = checkInteger(lst)
                 if (not isIntLst) and (sortingAlgoName == "Radix Sort" or sortingAlgoName == "Count Sort"):
-                    print("hero")
                     msgbox("Count Or Radix Sort doesnot work on float numbers inputted",title="Float Validation", ok_button="Close")
                 else:
                     sorting = True
