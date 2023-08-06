@@ -1,13 +1,10 @@
-<p align="center">
-  <img src="./screenshots/sortilizer-banner.png" alt="Sortilizer - Sorting Algorithm Visualizer" />
-</p>
 
 # Sortilizer - Sorting Algorithm Visualizer
 
 Sortilizer is a Python-based sorting algorithm visualizer built using the Pygame library. It provides an interactive and real-time visualization of various sorting algorithms, allowing you to observe how different algorithms work and compare their performances.
 
 <p align="center">
-  <img src="./screenshots/sortilizer-screenshot.png" alt="Sortilizer Screenshot" />
+  <img src="./readme_pngs/overview.png" alt="Sortilizer Screenshot" />
 </p>
 
 ## Features
