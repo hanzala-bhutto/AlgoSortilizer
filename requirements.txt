@@ -1,9 +1,12 @@
-tkinter
 matplotlib
-time
-math
-numpy
-random
 pygame
 pygame_gui
 easygui
+
+# comes pre-installed with python
+
+# Tkinter
+# time
+# math
+# numpy
+# random
